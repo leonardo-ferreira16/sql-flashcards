@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Flashcards</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>SQL Flashcards</h1>
+        <p>Aprenda e revise conceitos de SQL com cartões interativos.</p>
+    </header>
+
+    <main>
+        <section aria-labelledby="titulo-busca">
+            <h2 id="titulo-busca">Encontre seus flashcards</h2>
+
+            <label for="assunto">Assunto de SQL</label>
+            <input
+                type="text"
+                id="assunto"
+                placeholder="Ex.: JOIN, SELECT, GROUP BY"
+            >
+
+            <button id="btn-buscar" type="button">
+                Buscar flashcards
+            </button>
+        </section>
+
+        <section aria-labelledby="titulo-resultado">
+            <h2 id="titulo-resultado">Resultado</h2>
+            <div id="resultado" aria-live="polite">
+                <p>Digite um assunto para começar seus estudos.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>SQL Flashcards — Desenvolvimento de Sistemas Web</p>
+    </footer>
+
+    <script src="js/flashcards.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
