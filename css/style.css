@@ -1,0 +1,28 @@
+
+/* 1. Variáveis de cores */
+:root {
+    --bg-primary: #101827;
+    --bg-secondary: #1c293d;
+    --bg-input: #111c2d;
+    --accent: #f4b942;
+    --text-primary: #f8fafc;
+    --text-secondary: #aab8cc;
+    --border: #34435a;
+}
+
+/* 2. Configurações gerais */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
