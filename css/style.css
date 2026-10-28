@@ -68,3 +68,86 @@ section h2 {
     margin-bottom: 20px;
 }
 
+
+/* 6. Campo de pesquisa */
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+input {
+    width: 100%;
+    padding: 14px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+input:focus {
+    border-color: var(--accent);
+}
+
+input::placeholder {
+    color: var(--text-secondary);
+}
+
+
+/* 7. Botões */
+button {
+    padding: 13px 20px;
+    background: var(--accent);
+    color: var(--bg-primary);
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+button:hover {
+    background: #ffd16c;
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+button:focus-visible {
+    outline: 3px solid var(--text-primary);
+    outline-offset: 3px;
+}
+
+#btn-buscar {
+    width: 100%;
+}
+
+
+/* 8. Área de resultado */
+#resultado {
+    min-height: 100px;
+    padding: 20px;
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    text-align: center;
+}
+
+#resultado p {
+    color: var(--text-secondary);
+}
+
+/* 9. Rodapé */
+footer {
+    text-align: center;
+    padding: 25px 15px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
