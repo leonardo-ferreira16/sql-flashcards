@@ -198,3 +198,39 @@ footer {
         font-size: 0.75rem;
     }
 }
+
+
+/* 11. Estilização dos flashcards */
+
+/* Indicador do cartão atual */
+#resultado h3 {
+    color: var(--accent);
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+/* Pergunta do flashcard */
+#resultado .flashcard-question {
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    font-weight: bold;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+/* Resposta do flashcard */
+#resultado .flashcard-answer {
+    background: var(--bg-input);
+    color: var(--text-primary);
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    padding: 18px;
+    margin-bottom: 20px;
+    text-align: left;
+    line-height: 1.6;
+}
+
+/* Mantém respostas ocultas quando necessário */
+#resultado .flashcard-answer[hidden] {
+    display: none;
+}
