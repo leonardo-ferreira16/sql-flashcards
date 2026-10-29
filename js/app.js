@@ -65,6 +65,8 @@ function buscarFlashcards() {
         botaoRevelar.textContent = resposta.hidden
             ? "Revelar resposta"
             : "Ocultar resposta";
+
+        areaAvaliacao.hidden = resposta.hidden;
     });
 
     // Atualiza a área de resultado
@@ -78,6 +80,9 @@ function buscarFlashcards() {
     
     // Controla a posição do cartão atual
     let indiceAtual = 0;
+
+    // Guarda a avaliação de cada cartão
+    const avaliacoes = Array(cartoes.length).fill(null);
 
     // Cria os botões de navegação
     const botaoAnterior = document.createElement("button");
@@ -99,6 +104,9 @@ function buscarFlashcards() {
         // Esconde a resposta ao trocar de cartão
         resposta.hidden = true;
         botaoRevelar.textContent = "Revelar resposta";
+
+        areaAvaliacao.hidden = true;
+        atualizarAvaliacao();
 
         // Impede navegação fora dos limites
         botaoAnterior.disabled = indiceAtual === 0;
@@ -128,6 +136,53 @@ function buscarFlashcards() {
 
     navegacao.append(botaoAnterior, botaoProximo);
     resultado.appendChild(navegacao);
+
+    
+    // Área de autoavaliação
+    const areaAvaliacao = document.createElement("div");
+    areaAvaliacao.className = "flashcard-evaluation";
+    areaAvaliacao.hidden = true;
+
+    const textoAvaliacao = document.createElement("p");
+    textoAvaliacao.textContent = "Você sabia a resposta?";
+
+    const botaoSabia = document.createElement("button");
+    botaoSabia.textContent = "Sabia";
+
+    const botaoNaoSabia = document.createElement("button");
+    botaoNaoSabia.textContent = "Não sabia";
+
+    // Atualiza a indicação da avaliação selecionada
+    function atualizarAvaliacao() {
+        const avaliacaoAtual = avaliacoes[indiceAtual];
+
+        botaoSabia.textContent =
+            avaliacaoAtual === true ? "✓ Sabia" : "Sabia";
+
+        botaoNaoSabia.textContent =
+            avaliacaoAtual === false ? "✓ Não sabia" : "Não sabia";
+    }
+
+    // Registra que o usuário sabia
+    botaoSabia.addEventListener("click", () => {
+        avaliacoes[indiceAtual] = true;
+        atualizarAvaliacao();
+    });
+
+    // Registra que o usuário não sabia
+    botaoNaoSabia.addEventListener("click", () => {
+        avaliacoes[indiceAtual] = false;
+        atualizarAvaliacao();
+    });
+
+    areaAvaliacao.append(
+        textoAvaliacao,
+        botaoNaoSabia,
+        botaoSabia
+    );
+
+    resultado.appendChild(areaAvaliacao);
+
 
     atualizarCartao();
 
