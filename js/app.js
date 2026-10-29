@@ -48,8 +48,30 @@ function buscarFlashcards() {
     const pergunta = document.createElement("p");
     pergunta.textContent = cartoes[0].pergunta;
 
+    // Cria o elemento da resposta
+    const resposta = document.createElement("p");
+    resposta.textContent = cartoes[0].resposta;
+    resposta.hidden = true;
+
+    // Cria o botão para revelar a resposta
+    const botaoRevelar = document.createElement("button");
+    botaoRevelar.textContent = "Revelar resposta";
+
+    botaoRevelar.addEventListener("click", () => {
+        resposta.hidden = !resposta.hidden;
+
+        botaoRevelar.textContent = resposta.hidden
+            ? "Revelar resposta"
+            : "Ocultar resposta";
+    });
+
     // Atualiza a área de resultado
-    resultado.replaceChildren(titulo, pergunta);
+    resultado.replaceChildren(
+        titulo,
+        pergunta,
+        resposta,
+        botaoRevelar
+    );
 }
 
 // 4. Evento do botão de pesquisa
