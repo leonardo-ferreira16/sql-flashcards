@@ -47,10 +47,12 @@ function buscarFlashcards() {
     // Cria o elemento da pergunta
     const pergunta = document.createElement("p");
     pergunta.textContent = cartoes[0].pergunta;
+    pergunta.className = "flashcard-question";
 
     // Cria o elemento da resposta
     const resposta = document.createElement("p");
     resposta.textContent = cartoes[0].resposta;
+    resposta.className = "flashcard-answer";
     resposta.hidden = true;
 
     // Cria o botão para revelar a resposta

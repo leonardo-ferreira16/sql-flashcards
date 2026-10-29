@@ -234,3 +234,35 @@ footer {
 #resultado .flashcard-answer[hidden] {
     display: none;
 }
+
+
+/* 12. Botões dos flashcards */
+
+/* Botão de revelar resposta */
+#resultado > button {
+    display: block;
+    min-width: 190px;
+    margin: 18px auto 0;
+}
+
+/* Navegação entre cartões */
+.flashcard-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+/* Botões anterior e próximo */
+.flashcard-actions button {
+    min-width: 120px;
+}
+
+/* Aparência dos botões desativados */
+.flashcard-actions button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
