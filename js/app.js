@@ -1,0 +1,63 @@
+
+/*
+ * SQL Flashcards
+ * Lógica principal da aplicação.
+ */
+
+// 1. Referências aos elementos HTML
+const campoAssunto = document.getElementById("assunto");
+const botaoBuscar = document.getElementById("btn-buscar");
+const resultado = document.getElementById("resultado");
+
+// 2. Função para exibir mensagens
+function mostrarMensagem(mensagem) {
+    resultado.textContent = mensagem;
+}
+
+// 3. Função para buscar os flashcards
+function buscarFlashcards() {
+
+    // Lê e padroniza o texto digitado
+    const assunto = campoAssunto.value
+        .trim()
+        .replace(/\s+/g, " ")
+        .toUpperCase();
+
+    // Verifica se o campo está vazio
+    if (assunto === "") {
+        mostrarMensagem("Digite um assunto de SQL para continuar.");
+        return;
+    }
+
+    // Procura os cartões do assunto
+    const cartoes = flashcards[assunto];
+
+    // Verifica se o assunto existe
+    if (!cartoes || cartoes.length === 0) {
+        mostrarMensagem(
+            `Nenhum flashcard encontrado para "${assunto}".`
+        );
+        return;
+    }
+
+    // Cria o título do resultado
+    const titulo = document.createElement("h3");
+    titulo.textContent = `${assunto} — Cartão 1 de ${cartoes.length}`;
+
+    // Cria o elemento da pergunta
+    const pergunta = document.createElement("p");
+    pergunta.textContent = cartoes[0].pergunta;
+
+    // Atualiza a área de resultado
+    resultado.replaceChildren(titulo, pergunta);
+}
+
+// 4. Evento do botão de pesquisa
+botaoBuscar.addEventListener("click", buscarFlashcards);
+
+// 5. Permite pesquisar pressionando Enter
+campoAssunto.addEventListener("keydown", function(evento) {
+    if (evento.key === "Enter") {
+        buscarFlashcards();
+    }
+});
