@@ -1,178 +1,181 @@
 
 /*
  * SQL Flashcards
- * Lógica principal da aplicação.
+ * Pesquisa, navegação, autoavaliação e progresso.
  */
 
-// 1. Referências aos elementos HTML
+// Elementos da página
 const campoAssunto = document.getElementById("assunto");
 const botaoBuscar = document.getElementById("btn-buscar");
 const resultado = document.getElementById("resultado");
 
-// 2. Função para exibir mensagens
+// Chaves de armazenamento
+const CHAVE_PROGRESSO = "sql_flashcards_progresso";
+const CHAVE_ASSUNTO = "sql_flashcards_ultimo_assunto";
+
+// Estado da aplicação
+let assuntoAtual = "";
+let cartoesAtuais = [];
+let indiceAtual = 0;
+let respostaVisivel = false;
+
+// Recupera as avaliações armazenadas
+function carregarAvaliacoes() {
+    try {
+        const dados = JSON.parse(
+            localStorage.getItem(CHAVE_PROGRESSO)
+        );
+
+        if (dados && typeof dados === "object"
+            && !Array.isArray(dados)) {
+            return dados;
+        }
+    } catch (erro) {
+        console.warn("Não foi possível carregar o progresso.", erro);
+    }
+
+    return {};
+}
+
+const avaliacoes = carregarAvaliacoes();
+
+// Armazena as avaliações
+function salvarProgresso() {
+    try {
+        localStorage.setItem(
+            CHAVE_PROGRESSO,
+            JSON.stringify(avaliacoes)
+        );
+    } catch (erro) {
+        console.warn("Não foi possível salvar o progresso.", erro);
+    }
+}
+
+// Cria elementos HTML utilizando textContent
+function criarElemento(tag, texto, classe = "") {
+    const elemento = document.createElement(tag);
+    elemento.textContent = texto;
+
+    if (classe) {
+        elemento.className = classe;
+    }
+
+    return elemento;
+}
+
+// Exibe mensagens ao usuário
 function mostrarMensagem(mensagem) {
     resultado.textContent = mensagem;
 }
 
-// 3. Função para buscar os flashcards
-function buscarFlashcards() {
+// Calcula o progresso do assunto atual
+function calcularProgresso() {
+    const lista = avaliacoes[assuntoAtual] || [];
 
-    // Lê e padroniza o texto digitado
-    const assunto = campoAssunto.value
-        .trim()
-        .replace(/\s+/g, " ")
-        .toUpperCase();
+    return {
+        revisados: lista.filter(valor => typeof valor === "boolean").length,
+        conhecidos: lista.filter(valor => valor === true).length,
+        desconhecidos: lista.filter(valor => valor === false).length
+    };
+}
 
-    // Verifica se o campo está vazio
-    if (assunto === "") {
-        mostrarMensagem("Digite um assunto de SQL para continuar.");
+// Registra uma avaliação
+function avaliarCartao(sabia) {
+    avaliacoes[assuntoAtual][indiceAtual] = sabia;
+
+    salvarProgresso();
+    exibirCartao();
+}
+
+// Altera o flashcard atual
+function mudarCartao(direcao) {
+    const novoIndice = indiceAtual + direcao;
+
+    if (novoIndice < 0 || novoIndice >= cartoesAtuais.length) {
         return;
     }
 
-    // Procura os cartões do assunto
-    const cartoes = flashcards[assunto];
+    indiceAtual = novoIndice;
+    respostaVisivel = false;
 
-    // Verifica se o assunto existe
-    if (!cartoes || cartoes.length === 0) {
-        mostrarMensagem(
-            `Nenhum flashcard encontrado para "${assunto}".`
-        );
-        return;
-    }
+    exibirCartao();
+}
 
-    // Cria o título do resultado
-    const titulo = document.createElement("h3");
-    titulo.textContent = `${assunto} — Cartão 1 de ${cartoes.length}`;
+// Atualiza a interface do cartão
+function exibirCartao() {
+    const cartao = cartoesAtuais[indiceAtual];
+    const progresso = calcularProgresso();
 
-    // Cria o elemento da pergunta
-    const pergunta = document.createElement("p");
-    pergunta.textContent = cartoes[0].pergunta;
-    pergunta.className = "flashcard-question";
-
-    // Cria o elemento da resposta
-    const resposta = document.createElement("p");
-    resposta.textContent = cartoes[0].resposta;
-    resposta.className = "flashcard-answer";
-    resposta.hidden = true;
-
-    // Cria o botão para revelar a resposta
-    const botaoRevelar = document.createElement("button");
-    botaoRevelar.textContent = "Revelar resposta";
-
-    botaoRevelar.addEventListener("click", () => {
-        resposta.hidden = !resposta.hidden;
-
-        botaoRevelar.textContent = resposta.hidden
-            ? "Revelar resposta"
-            : "Ocultar resposta";
-
-        areaAvaliacao.hidden = resposta.hidden;
-    });
-
-    // Atualiza a área de resultado
-    resultado.replaceChildren(
-        titulo,
-        pergunta,
-        resposta,
-        botaoRevelar
+    // Identificação e pergunta
+    const titulo = criarElemento(
+        "h3",
+        `${assuntoAtual} — Cartão ${indiceAtual + 1} de ${cartoesAtuais.length}`
     );
 
-    
-    // Controla a posição do cartão atual
-    let indiceAtual = 0;
+    const pergunta = criarElemento(
+        "p",
+        cartao.pergunta,
+        "flashcard-question"
+    );
 
-    // Guarda a avaliação de cada cartão
-    const avaliacoes = Array(cartoes.length).fill(null);
+    // Resposta
+    const resposta = criarElemento(
+        "p",
+        cartao.resposta,
+        "flashcard-answer"
+    );
 
-    // Cria os botões de navegação
-    const botaoAnterior = document.createElement("button");
-    botaoAnterior.textContent = "Anterior";
+    resposta.hidden = !respostaVisivel;
 
-    const botaoProximo = document.createElement("button");
-    botaoProximo.textContent = "Próximo";
+    // Botão revelar/ocultar
+    const botaoRevelar = criarElemento(
+        "button",
+        respostaVisivel ? "Ocultar resposta" : "Revelar resposta"
+    );
 
-    // Atualiza os dados exibidos na tela
-    function atualizarCartao() {
-        const cartao = cartoes[indiceAtual];
-
-        titulo.textContent =
-            `${assunto} — Cartão ${indiceAtual + 1} de ${cartoes.length}`;
-
-        pergunta.textContent = cartao.pergunta;
-        resposta.textContent = cartao.resposta;
-
-        // Esconde a resposta ao trocar de cartão
-        resposta.hidden = true;
-        botaoRevelar.textContent = "Revelar resposta";
-
-        areaAvaliacao.hidden = true;
-        atualizarAvaliacao();
-
-        // Impede navegação fora dos limites
-        botaoAnterior.disabled = indiceAtual === 0;
-        botaoProximo.disabled =
-            indiceAtual === cartoes.length - 1;
-    }
-
-    // Retorna ao cartão anterior
-    botaoAnterior.addEventListener("click", () => {
-        if (indiceAtual > 0) {
-            indiceAtual--;
-            atualizarCartao();
-        }
+    botaoRevelar.addEventListener("click", () => {
+        respostaVisivel = !respostaVisivel;
+        exibirCartao();
     });
 
-    // Avança para o próximo cartão
-    botaoProximo.addEventListener("click", () => {
-        if (indiceAtual < cartoes.length - 1) {
-            indiceAtual++;
-            atualizarCartao();
-        }
-    });
-
-    // Adiciona a navegação na página
-    const navegacao = document.createElement("div");
-    navegacao.className = "flashcard-actions";
-
-    navegacao.append(botaoAnterior, botaoProximo);
-    resultado.appendChild(navegacao);
-
-    
-    // Área de autoavaliação
+    // Autoavaliação
     const areaAvaliacao = document.createElement("div");
     areaAvaliacao.className = "flashcard-evaluation";
-    areaAvaliacao.hidden = true;
+    areaAvaliacao.hidden = !respostaVisivel;
 
-    const textoAvaliacao = document.createElement("p");
-    textoAvaliacao.textContent = "Você sabia a resposta?";
+    const textoAvaliacao = criarElemento(
+        "p",
+        "Você sabia a resposta?"
+    );
 
-    const botaoSabia = document.createElement("button");
-    botaoSabia.textContent = "Sabia";
+    const avaliacaoAtual = avaliacoes[assuntoAtual][indiceAtual];
 
-    const botaoNaoSabia = document.createElement("button");
-    botaoNaoSabia.textContent = "Não sabia";
+    const botaoNaoSabia = criarElemento(
+        "button",
+        avaliacaoAtual === false ? "✓ Não sabia" : "Não sabia",
+        "btn-nao-sabia"
+    );
 
-    // Atualiza a indicação da avaliação selecionada
-    function atualizarAvaliacao() {
-        const avaliacaoAtual = avaliacoes[indiceAtual];
+    const botaoSabia = criarElemento(
+        "button",
+        avaliacaoAtual === true ? "✓ Sabia" : "Sabia",
+        "btn-sabia"
+    );
 
-        botaoSabia.textContent =
-            avaliacaoAtual === true ? "✓ Sabia" : "Sabia";
-
-        botaoNaoSabia.textContent =
-            avaliacaoAtual === false ? "✓ Não sabia" : "Não sabia";
+    if (avaliacaoAtual === false) {
+        botaoNaoSabia.classList.add("selecionado");
     }
 
-    // Registra que o usuário sabia
-    botaoSabia.addEventListener("click", () => {
-        avaliacoes[indiceAtual] = true;
-        atualizarAvaliacao();
+    if (avaliacaoAtual === true) {
+        botaoSabia.classList.add("selecionado");
+    }
+
+    botaoNaoSabia.addEventListener("click", () => {
+        avaliarCartao(false);
     });
 
-    // Registra que o usuário não sabia
-    botaoNaoSabia.addEventListener("click", () => {
-        avaliacoes[indiceAtual] = false;
-        atualizarAvaliacao();
+    botaoSabia.addEventListener("click", () => {
+        avaliarCartao(true);
     });
 
     areaAvaliacao.append(
@@ -181,19 +184,111 @@ function buscarFlashcards() {
         botaoSabia
     );
 
-    resultado.appendChild(areaAvaliacao);
+    // Navegação
+    const navegacao = document.createElement("div");
+    navegacao.className = "flashcard-actions";
 
+    const botaoAnterior = criarElemento("button", "Anterior");
+    const botaoProximo = criarElemento("button", "Próximo");
 
-    atualizarCartao();
+    botaoAnterior.disabled = indiceAtual === 0;
+    botaoProximo.disabled = indiceAtual === cartoesAtuais.length - 1;
 
+    botaoAnterior.addEventListener("click", () => mudarCartao(-1));
+    botaoProximo.addEventListener("click", () => mudarCartao(1));
+
+    navegacao.append(botaoAnterior, botaoProximo);
+
+    // Indicadores de progresso
+    const painelProgresso = document.createElement("div");
+    painelProgresso.className = "flashcard-progress";
+
+    const textoProgresso = criarElemento(
+        "p",
+        `Revisados: ${progresso.revisados}/${cartoesAtuais.length} | ` +
+        `Sabia: ${progresso.conhecidos} | ` +
+        `Não sabia: ${progresso.desconhecidos}`
+    );
+
+    const barraProgresso = document.createElement("progress");
+    barraProgresso.max = cartoesAtuais.length;
+    barraProgresso.value = progresso.revisados;
+    barraProgresso.setAttribute("aria-label", "Progresso da revisão");
+
+    painelProgresso.append(textoProgresso, barraProgresso);
+
+    // Atualiza a página
+    resultado.replaceChildren(
+        titulo,
+        pergunta,
+        resposta,
+        botaoRevelar,
+        areaAvaliacao,
+        navegacao,
+        painelProgresso
+    );
 }
 
-// 4. Evento do botão de pesquisa
+// Pesquisa flashcards pelo assunto
+function buscarFlashcards() {
+    const assunto = campoAssunto.value
+        .trim()
+        .replace(/\s+/g, " ")
+        .toUpperCase();
+
+    if (!assunto) {
+        mostrarMensagem("Digite um assunto de SQL para continuar.");
+        return;
+    }
+
+    if (!Object.hasOwn(flashcards, assunto)
+        || !Array.isArray(flashcards[assunto])
+        || flashcards[assunto].length === 0) {
+        mostrarMensagem(`Nenhum flashcard encontrado para "${assunto}".`);
+        return;
+    }
+
+    assuntoAtual = assunto;
+    cartoesAtuais = flashcards[assunto];
+    indiceAtual = 0;
+    respostaVisivel = false;
+
+    // Inicializa e valida as avaliações do assunto
+    const anteriores = Array.isArray(avaliacoes[assunto])
+        ? avaliacoes[assunto]
+        : [];
+
+    avaliacoes[assunto] = cartoesAtuais.map((_, indice) => {
+        const valor = anteriores[indice];
+        return typeof valor === "boolean" ? valor : null;
+    });
+
+    try {
+        localStorage.setItem(CHAVE_ASSUNTO, assunto);
+    } catch (erro) {
+        console.warn("Não foi possível salvar o assunto.", erro);
+    }
+
+    exibirCartao();
+}
+
+// Eventos de pesquisa
 botaoBuscar.addEventListener("click", buscarFlashcards);
 
-// 5. Permite pesquisar pressionando Enter
-campoAssunto.addEventListener("keydown", function(evento) {
+campoAssunto.addEventListener("keydown", (evento) => {
     if (evento.key === "Enter") {
         buscarFlashcards();
     }
 });
+
+// Recupera o último assunto estudado
+try {
+    const ultimoAssunto = localStorage.getItem(CHAVE_ASSUNTO);
+
+    if (ultimoAssunto && Object.hasOwn(flashcards, ultimoAssunto)) {
+        campoAssunto.value = ultimoAssunto;
+        buscarFlashcards();
+    }
+} catch (erro) {
+    console.warn("Não foi possível recuperar o último assunto.", erro);
+}
