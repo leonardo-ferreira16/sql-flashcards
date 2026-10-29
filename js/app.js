@@ -72,6 +72,63 @@ function buscarFlashcards() {
         resposta,
         botaoRevelar
     );
+
+    
+    // Controla a posição do cartão atual
+    let indiceAtual = 0;
+
+    // Cria os botões de navegação
+    const botaoAnterior = document.createElement("button");
+    botaoAnterior.textContent = "Anterior";
+
+    const botaoProximo = document.createElement("button");
+    botaoProximo.textContent = "Próximo";
+
+    // Atualiza os dados exibidos na tela
+    function atualizarCartao() {
+        const cartao = cartoes[indiceAtual];
+
+        titulo.textContent =
+            `${assunto} — Cartão ${indiceAtual + 1} de ${cartoes.length}`;
+
+        pergunta.textContent = cartao.pergunta;
+        resposta.textContent = cartao.resposta;
+
+        // Esconde a resposta ao trocar de cartão
+        resposta.hidden = true;
+        botaoRevelar.textContent = "Revelar resposta";
+
+        // Impede navegação fora dos limites
+        botaoAnterior.disabled = indiceAtual === 0;
+        botaoProximo.disabled =
+            indiceAtual === cartoes.length - 1;
+    }
+
+    // Retorna ao cartão anterior
+    botaoAnterior.addEventListener("click", () => {
+        if (indiceAtual > 0) {
+            indiceAtual--;
+            atualizarCartao();
+        }
+    });
+
+    // Avança para o próximo cartão
+    botaoProximo.addEventListener("click", () => {
+        if (indiceAtual < cartoes.length - 1) {
+            indiceAtual++;
+            atualizarCartao();
+        }
+    });
+
+    // Adiciona a navegação na página
+    const navegacao = document.createElement("div");
+    navegacao.className = "flashcard-actions";
+
+    navegacao.append(botaoAnterior, botaoProximo);
+    resultado.appendChild(navegacao);
+
+    atualizarCartao();
+
 }
 
 // 4. Evento do botão de pesquisa
